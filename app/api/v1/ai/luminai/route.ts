@@ -12,60 +12,44 @@ export async function GET(request: Request) {
         creator: siteConfig.api.creator,
         error: "Text is required",
       },
-      {
-        status: 400,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-        },
-      },
+      { status: 400 }
     )
   }
 
   try {
     const response = await fetch("https://luminai.my.id/", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ content: text }),
     })
 
+    if (!response.ok) {
+        const errorText = await response.text();
+        return NextResponse.json({
+            status: false,
+            creator: siteConfig.api.creator,
+            error: `External API error: ${errorText}`
+        }, { status: response.status });
+    }
+
     const data = await response.json()
 
-    return new NextResponse(
-      JSON.stringify(
-        {
-          status: true,
-          creator: siteConfig.api.creator,
-          result: data.result,
-          version: "v1",
-        },
-        null,
-        2,
-      ),
+    return NextResponse.json(
       {
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-        },
-      },
+        status: true,
+        creator: siteConfig.api.creator,
+        result: data.result,
+        version: "v1",
+      }
     )
   } catch (error) {
-    return new NextResponse(
-      JSON.stringify(
-        {
-          status: false,
-          creator: siteConfig.api.creator,
-          error: error instanceof Error ? error.message : "An error occurred",
-        },
-        null,
-        2,
-      ),
+    return NextResponse.json(
       {
-        status: 500,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-        },
+        status: false,
+        creator: siteConfig.api.creator,
+        error: error instanceof Error ? error.message : "An unknown error occurred",
       },
+      { status: 500 }
     )
   }
 }

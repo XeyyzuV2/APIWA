@@ -4,200 +4,83 @@ import { siteConfig, getApiStatus } from "@/settings/config"
 const API_TIMEOUT = 10000
 
 async function hydromind(content: string, model: string, responses?: number) {
+  const formData = new FormData()
+  formData.append("content", content)
+  formData.append("model", model)
+  if (responses) {
+    formData.append("responses", responses.toString())
+  }
+
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT)
+
   try {
-    const formData = new FormData()
-    formData.append("content", content)
-    formData.append("model", model)
+    const response = await fetch("https://mind.hydrooo.web.id/v1/chat/", {
+      method: "POST",
+      body: formData,
+      signal: controller.signal,
+    })
+    clearTimeout(timeoutId)
 
-    if (responses) {
-      formData.append("responses", responses.toString())
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`API request failed with status ${response.status}: ${errorText}`)
     }
 
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT)
-
+    // It might return text or json, handle both
+    const responseText = await response.text()
     try {
-      const response = await fetch("https://mind.hydrooo.web.id/v1/chat/", {
-        method: "POST",
-        body: formData,
-        signal: controller.signal,
-      })
-
-      clearTimeout(timeoutId)
-
-      const responseText = await response.text()
-
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}: ${responseText}`)
-      }
-
-      try {
-        const data = JSON.parse(responseText)
-        return data
-      } catch (parseError) {
-        const result = responseText.trim()
-        return {
-          result,
-        }
-      }
-    } catch (error) {
-      if (error instanceof Error && error.name === "AbortError") {
-        throw new Error("External API request timed out after 10 seconds")
-      }
-      throw error as Error
+      return JSON.parse(responseText)
+    } catch {
+      return { result: responseText.trim() }
     }
+
   } catch (error) {
-    console.error("Hydromind API error:", error)
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("External API request timed out after 10 seconds")
+    }
     throw error
   }
 }
 
 export async function POST(request: Request) {
   try {
-    let body
-    try {
-      body = await request.json()
-    } catch (error) {
-      return new NextResponse(
-        JSON.stringify(
-          {
-            status: false,
-            creator: siteConfig.api.creator,
-            error: "Invalid JSON in request body",
-          },
-          null,
-          2,
-        ),
-        {
-          status: 400,
-          headers: {
-            "Content-Type": "application/json; charset=utf-8",
-          },
-        },
-      )
-    }
-
+    const body = await request.json()
     const { text, model, responses } = body
 
     if (!text || !model) {
-      return new NextResponse(
-        JSON.stringify(
-          {
-            status: false,
-            creator: siteConfig.api.creator,
-            error: "Text and Model are required",
-          },
-          null,
-          2,
-        ),
-        {
-          status: 400,
-          headers: {
-            "Content-Type": "application/json; charset=utf-8",
-          },
-        },
-      )
-    }
-
-    try {
-      const data = await hydromind(text, model, responses ? Number(responses) : undefined)
-
-      return new NextResponse(
-        JSON.stringify(
-          {
-            status: true,
-            creator: siteConfig.api.creator,
-            result: data.result,
-            version: "v2",
-          },
-          null,
-          2,
-        ),
-        {
-          headers: {
-            "Content-Type": "application/json; charset=utf-8",
-          },
-        },
-      )
-    } catch (error) {
-      if (error instanceof Error && error.message.includes("timed out")) {
-        return new NextResponse(
-          JSON.stringify(
-            {
-              status: false,
-              creator: siteConfig.api.creator,
-              error: "Request to external API timed out. Try a simpler prompt or try again later.",
-            },
-            null,
-            2,
-          ),
-          {
-            status: 504,
-            headers: {
-              "Content-Type": "application/json; charset=utf-8",
-            },
-          },
-        )
-      }
-
-      return new NextResponse(
-        JSON.stringify(
-          {
-            status: false,
-            creator: siteConfig.api.creator,
-            error: error instanceof Error ? error.message : "External API error",
-          },
-          null,
-          2,
-        ),
-        {
-          status: 500,
-          headers: {
-            "Content-Type": "application/json; charset=utf-8",
-          },
-        },
-      )
-    }
-  } catch (error) {
-    console.error("Unhandled error in hydromind route:", error)
-    return new NextResponse(
-      JSON.stringify(
-        {
+      return NextResponse.json({
           status: false,
           creator: siteConfig.api.creator,
-          error: error instanceof Error ? error.message : "An unexpected error occurred",
-        },
-        null,
-        2,
-      ),
-      {
-        status: 500,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-        },
-      },
-    )
+          error: "Text and Model are required",
+      }, { status: 400 });
+    }
+
+    const data = await hydromind(text, model, responses ? Number(responses) : undefined)
+    return NextResponse.json({
+        status: true,
+        creator: siteConfig.api.creator,
+        result: data.result,
+        version: "v2",
+    });
+
+  } catch (error) {
+    return NextResponse.json({
+        status: false,
+        creator: siteConfig.api.creator,
+        error: error instanceof Error ? error.message : "An unexpected error occurred",
+    }, { status: 500 });
   }
 }
 
 export async function GET() {
   const apiStatus = getApiStatus("/ai/hydromind")
-  return new NextResponse(
-    JSON.stringify(
-      {
-        status: true,
-        creator: siteConfig.api.creator,
-        message: "HydroMind API endpoint",
-        apiStatus: apiStatus.status,
-        version: "v2",
-      },
-      null,
-      2,
-    ),
-    {
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-      },
-    },
-  )
+  return NextResponse.json({
+      status: true,
+      creator: siteConfig.api.creator,
+      message: "HydroMind API endpoint",
+      apiStatus: apiStatus.status,
+      version: "v2",
+  });
 }
