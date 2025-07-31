@@ -3,8 +3,9 @@ import mongoose from 'mongoose';
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  // In a real app, you'd throw an error, but for local dev we will fallback.
-  console.log("MONGODB_URI is not set. Falling back to file-based db.");
+  throw new Error(
+    'Please define the MONGODB_URI environment variable inside .env.local'
+  );
 }
 
 let cached = (global as any).mongoose;
@@ -14,10 +15,6 @@ if (!cached) {
 }
 
 async function dbConnect() {
-  if (!MONGODB_URI) {
-    return null; // Indicate that we should use the fallback
-  }
-
   if (cached.conn) {
     return cached.conn;
   }
