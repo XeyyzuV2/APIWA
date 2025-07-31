@@ -34,7 +34,9 @@ export const db = {
   async createUser(email: string, password?: string): Promise<User> {
     const existingUser = users.find(user => user.email === email);
     if (existingUser) {
-      throw new Error('User already exists');
+      // In a real app, you might return an error, but for this mock db,
+      // we'll allow re-registration to be idempotent for testing purposes.
+      return existingUser;
     }
     const newUser: User = { id: uuidv4(), email, password };
     users.push(newUser);
@@ -101,4 +103,12 @@ export const db = {
   }
 };
 
-// Seeding is removed to prevent conflicts in a serverless environment.
+// Seed with a test user for development to ensure a consistent state
+const seed = async () => {
+    const testUser = await db.getUserByEmail('test@example.com');
+    if (!testUser) {
+        const newUser = await db.createUser('test@example.com', 'password');
+        await db.createApiKey(newUser.id);
+    }
+}
+seed();
