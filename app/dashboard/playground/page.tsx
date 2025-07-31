@@ -72,8 +72,14 @@ export default function PlaygroundPage() {
         .flatMap(c => c.endpoints)
         .find(e => e.path === state.selectedEndpoint);
 
-    const url = new URL(`/api${state.selectedEndpoint}`, window.location.origin);
-    endpointDetails?.parameters.forEach(p => {
+    if (!endpointDetails) {
+        setState(prev => ({ ...prev, error: "Selected endpoint details not found.", isLoading: false }));
+        return;
+    }
+
+    const apiVersion = endpointDetails.versions[0] || 'v1'; // Default to v1 if not specified
+    const url = new URL(`/api/${apiVersion}${state.selectedEndpoint}`, window.location.origin);
+    endpointDetails.parameters.forEach(p => {
         if (state.params[p.name]) {
             url.searchParams.append(p.name, state.params[p.name]);
         }
