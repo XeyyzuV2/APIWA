@@ -10,6 +10,9 @@ export async function POST(request: Request) {
 
   try {
     const user = await db.createUser(email, password);
+    if (user) {
+      await db.createApiKey(user.id);
+    }
     return NextResponse.json(user);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 400 });

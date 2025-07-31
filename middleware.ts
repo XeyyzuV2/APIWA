@@ -11,10 +11,10 @@ const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
 
 async function handleApiRequest(request: NextRequest) {
   const pathname = request.nextUrl.pathname
+  const publicApiRoutes = ["/api/auth", "/api/register"];
 
-  // Allow auth routes without checks
-  if (pathname.startsWith("/api/auth/")) {
-    return NextResponse.next()
+  if (publicApiRoutes.some(route => pathname.startsWith(route))) {
+    return NextResponse.next();
   }
 
   // Handle key management routes separately, they are protected by session
