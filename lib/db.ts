@@ -24,22 +24,22 @@ const mongoDb = {
         const existingUser = await User.findOne({ email });
         if (existingUser) throw new Error('User already exists');
         const user = await User.create({ email, password });
-        return { id: user._id.toString(), email: user.email };
+        return { id: user._id, email: user.email };
     },
     async getUserByEmail(email: string): Promise<UserType | undefined> {
         await dbConnect();
         const user = await User.findOne({ email });
         if (!user) return undefined;
-        return { id: user._id.toString(), email: user.email, password: user.password };
+        return { id: user._id, email: user.email, password: user.password };
     },
     async createApiKey(userId: string): Promise<ApiKeyType> {
         await dbConnect();
         const newKey = { key: `xapi_${uuidv4().replace(/-/g, '')}`, userId };
         const apiKey = await ApiKey.create(newKey);
         return {
-            id: apiKey._id.toString(),
+            id: apiKey._id,
             key: apiKey.key,
-            userId: apiKey.userId.toString(),
+            userId: apiKey.userId,
             createdAt: apiKey.createdAt,
         };
     },
@@ -47,9 +47,9 @@ const mongoDb = {
         await dbConnect();
         const keys = await ApiKey.find({ userId, revokedAt: { $exists: false } });
         return keys.map(k => ({
-            id: k._id.toString(),
+            id: k._id,
             key: k.key,
-            userId: k.userId.toString(),
+            userId: k.userId,
             createdAt: k.createdAt,
         }));
     },
@@ -58,9 +58,9 @@ const mongoDb = {
         const apiKey = await ApiKey.findOne({ key, revokedAt: { $exists: false } });
         if (!apiKey) return undefined;
         return {
-            id: apiKey._id.toString(),
+            id: apiKey._id,
             key: apiKey.key,
-            userId: apiKey.userId.toString(),
+            userId: apiKey.userId,
             createdAt: apiKey.createdAt,
         };
     },
@@ -69,9 +69,9 @@ const mongoDb = {
         const apiKey = await ApiKey.findByIdAndUpdate(keyId, { revokedAt: new Date() }, { new: true });
         if (!apiKey) return undefined;
         return {
-            id: apiKey._id.toString(),
+            id: apiKey._id,
             key: apiKey.key,
-            userId: apiKey.userId.toString(),
+            userId: apiKey.userId,
             createdAt: apiKey.createdAt,
             revokedAt: apiKey.revokedAt,
         };
