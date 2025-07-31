@@ -81,6 +81,12 @@ export default function PlaygroundPage() {
         <CardDescription>Test API endpoints directly from the dashboard.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        {apiKey && (
+            <div className="flex items-center gap-2 rounded-md bg-muted p-3">
+                <Label>Using API Key:</Label>
+                <Badge variant="outline">{apiKey.substring(0, 12)}...</Badge>
+            </div>
+        )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid gap-2">
             <Label htmlFor="endpoint">Endpoint</Label>

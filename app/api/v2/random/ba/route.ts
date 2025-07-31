@@ -122,51 +122,6 @@ async function bluearchive() {
 }
 
 export async function GET() {
-  const apiStatus = getApiStatus("/random/ba")
-
-  if (apiStatus.status === "offline") {
-    return new NextResponse(
-      JSON.stringify(
-        {
-          status: false,
-          creator: siteConfig.api.creator,
-          error: "This API endpoint is currently offline and unavailable. Please try again later.",
-          endpoint: "/random/ba",
-          apiStatus: "offline",
-          version: "v2",
-        },
-        null,
-        2,
-      ),
-      {
-        status: 503,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-        },
-      },
-    )
-  }
-
-  if (siteConfig.maintenance.enabled) {
-    return new NextResponse(
-      JSON.stringify(
-        {
-          status: siteConfig.maintenance.apiResponse.status,
-          creator: siteConfig.api.creator,
-          message: siteConfig.maintenance.apiResponse.message,
-        },
-        null,
-        2,
-      ),
-      {
-        status: 503,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-        },
-      },
-    )
-  }
-
   try {
     const result = await bluearchive()
 

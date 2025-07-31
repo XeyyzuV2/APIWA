@@ -53,51 +53,6 @@ async function hydromind(content: string, model: string, responses?: number) {
 }
 
 export async function POST(request: Request) {
-  const apiStatus = getApiStatus("/ai/hydromind")
-
-  if (apiStatus.status === "offline") {
-    return new NextResponse(
-      JSON.stringify(
-        {
-          status: false,
-          creator: siteConfig.api.creator,
-          error: "This API endpoint is currently offline and unavailable. Please try again later.",
-          endpoint: "/ai/hydromind",
-          apiStatus: "offline",
-          version: "v2",
-        },
-        null,
-        2,
-      ),
-      {
-        status: 503,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-        },
-      },
-    )
-  }
-
-  if (siteConfig.maintenance.enabled) {
-    return new NextResponse(
-      JSON.stringify(
-        {
-          status: siteConfig.maintenance.apiResponse.status,
-          creator: siteConfig.api.creator,
-          message: siteConfig.maintenance.apiResponse.message,
-        },
-        null,
-        2,
-      ),
-      {
-        status: 503,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-        },
-      },
-    )
-  }
-
   try {
     let body
     try {
@@ -227,30 +182,6 @@ export async function POST(request: Request) {
 
 export async function GET() {
   const apiStatus = getApiStatus("/ai/hydromind")
-
-  if (apiStatus.status === "offline") {
-    return new NextResponse(
-      JSON.stringify(
-        {
-          status: false,
-          creator: siteConfig.api.creator,
-          error: "This API endpoint is currently offline and unavailable. Please try again later.",
-          endpoint: "/ai/hydromind",
-          apiStatus: "offline",
-          version: "v2",
-        },
-        null,
-        2,
-      ),
-      {
-        status: 503,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-        },
-      },
-    )
-  }
-
   return new NextResponse(
     JSON.stringify(
       {
