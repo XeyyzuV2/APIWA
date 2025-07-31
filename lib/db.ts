@@ -101,5 +101,4 @@ export const db = {
   }
 };
 
-// Seed with a test user for development
-db.createUser('test@example.com', 'password');
+// Seeding is removed to prevent conflicts in a serverless environment.
