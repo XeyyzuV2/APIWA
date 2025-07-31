@@ -1,5 +1,5 @@
 import { NavBar } from "@/components/nav-bar";
-import { ApiEndPoints } from "@/components/api-endpoints";
+import { ApiEndpoints } from "@/components/api-endpoints";
 import { siteConfig } from "@/settings/config";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -47,7 +47,7 @@ export default function DocsPage() {
             </Card>
         </section>
 
-        <ApiEndPoints />
+        <ApiEndpoints />
 
         <section id="errors" className="mb-12">
             <Card>
