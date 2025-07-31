@@ -2,6 +2,14 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { siteConfig } from "@/settings/config"
 
+// Helper to create a JSON response from the middleware
+function jsonResponse(status: number, data: any) {
+    return new Response(JSON.stringify(data), {
+      status,
+      headers: { 'Content-Type': 'application/json' },
+    });
+}
+
 async function handleApiRequest(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const publicApiRoutes = ["/api/auth", "/api/register", "/api/internal/validate-key"];
@@ -16,7 +24,7 @@ async function handleApiRequest(request: NextRequest) {
 
   const authHeader = request.headers.get("Authorization");
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return new NextResponse(JSON.stringify({ error: "Unauthorized: Missing API Key" }), { status: 401 });
+    return jsonResponse(401, { error: "Unauthorized: Missing API Key" });
   }
 
   const apiKey = authHeader.substring(7);
@@ -31,12 +39,8 @@ async function handleApiRequest(request: NextRequest) {
 
   if (!validationResponse.ok) {
     const errorData = await validationResponse.json();
-    return new NextResponse(JSON.stringify({ error: errorData.error || "Unauthorized: Invalid API Key" }), { status: 401 });
+    return jsonResponse(401, { error: errorData.error || "Unauthorized: Invalid API Key" });
   }
-
-  // The rest of the logic (rate-limiting, logging) would need to be re-implemented
-  // in a way that is compatible with the edge, likely involving another service call.
-  // For now, we just validate.
 
   return NextResponse.next();
 }

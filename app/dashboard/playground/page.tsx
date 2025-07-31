@@ -84,6 +84,12 @@ export default function PlaygroundPage() {
         headers: { Authorization: `Bearer ${state.apiKey}` },
       });
 
+      const contentType = res.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const responseText = await res.text();
+        throw new Error(`Expected JSON response, but received ${contentType || 'text/plain'}. Response: ${responseText}`);
+      }
+
       const data = await res.json();
 
       if (!res.ok) {
@@ -92,7 +98,7 @@ export default function PlaygroundPage() {
 
       setState(prev => ({ ...prev, response: data, isLoading: false }));
     } catch (err: any) {
-      setState(prev => ({ ...prev, error: err.message, response: err, isLoading: false }));
+      setState(prev => ({ ...prev, error: err.message, response: { error: err.message }, isLoading: false }));
     }
   };
 
