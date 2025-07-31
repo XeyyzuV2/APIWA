@@ -1,136 +1,77 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { siteConfig } from "@/settings/config"
+import { db } from "@/lib/db"
 
 const RATE_LIMIT = siteConfig.api.rateLimit.limit
-const RATE_LIMIT_WINDOW = siteConfig.api.rateLimit.windowMs
 const RATE_LIMIT_RESET = siteConfig.api.rateLimit.resetTimeMs
 const HEADER_PREFIX = siteConfig.api.rateLimit.headerPrefix
 
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
 
-function getRateLimitResponse(ip: string) {
+async function handleApiRequest(request: NextRequest) {
+  const pathname = request.nextUrl.pathname
+
+  // Allow auth routes without checks
+  if (pathname.startsWith("/api/auth/")) {
+    return NextResponse.next()
+  }
+
+  // Handle key management routes separately, they are protected by session
+  if (pathname.startsWith("/api/keys") || pathname.startsWith("/api/analytics")) {
+    return NextResponse.next()
+  }
+
+  const authHeader = request.headers.get("Authorization")
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return new NextResponse(JSON.stringify({ error: "Unauthorized: Missing API Key" }), { status: 401 })
+  }
+
+  const apiKey = authHeader.substring(7) // "Bearer ".length
+  const dbKey = await db.getApiKey(apiKey)
+
+  if (!dbKey) {
+    return new NextResponse(JSON.stringify({ error: "Unauthorized: Invalid API Key" }), { status: 401 })
+  }
+
+  // --- Rate Limiting (per key) ---
   const now = Date.now()
-  const clientData = rateLimitMap.get(ip)
+  const clientData = rateLimitMap.get(dbKey.id)
 
   if (!clientData || now > clientData.resetTime) {
-    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_LIMIT_RESET })
-    return {
-      remaining: RATE_LIMIT - 1,
-      headers: {
-        [`${HEADER_PREFIX}-Limit`]: RATE_LIMIT.toString(),
-        [`${HEADER_PREFIX}-Remaining`]: (RATE_LIMIT - 1).toString(),
-        [`${HEADER_PREFIX}-Reset`]: Math.ceil((now + RATE_LIMIT_RESET) / 1000).toString(),
-      },
+    rateLimitMap.set(dbKey.id, { count: 1, resetTime: now + RATE_LIMIT_RESET })
+  } else {
+    clientData.count++
+    if (clientData.count > RATE_LIMIT) {
+      return new NextResponse(JSON.stringify({ error: "Rate limit exceeded" }), { status: 429 })
     }
   }
 
-  if (clientData.count >= RATE_LIMIT) {
-    return new NextResponse(
-      JSON.stringify(
-        {
-          status: false,
-          creator: siteConfig.api.creator,
-          error: "Rate limit exceeded. Please try again later.",
-          limit: RATE_LIMIT,
-          window: siteConfig.api.rateLimit.window,
-          resetTime: Math.ceil(clientData.resetTime / 1000),
-        },
-        null,
-        2,
-      ),
-      {
-        status: 429,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-          [`${HEADER_PREFIX}-Limit`]: RATE_LIMIT.toString(),
-          [`${HEADER_PREFIX}-Remaining`]: "0",
-          [`${HEADER_PREFIX}-Reset`]: Math.ceil(clientData.resetTime / 1000).toString(),
-        },
-      },
-    )
-  }
+  // --- Logging ---
+  await db.logRequest(dbKey.id, request.method, pathname)
 
-  clientData.count++
-  return {
-    remaining: RATE_LIMIT - clientData.count,
-    headers: {
-      [`${HEADER_PREFIX}-Limit`]: RATE_LIMIT.toString(),
-      [`${HEADER_PREFIX}-Remaining`]: (RATE_LIMIT - clientData.count).toString(),
-      [`${HEADER_PREFIX}-Reset`]: Math.ceil(clientData.resetTime / 1000).toString(),
-    },
-  }
+  const response = NextResponse.next()
+  // Add rate limit headers to the response
+  const currentRateLimit = rateLimitMap.get(dbKey.id)
+  response.headers.set(`${HEADER_PREFIX}-Limit`, RATE_LIMIT.toString())
+  response.headers.set(`${HEADER_PREFIX}-Remaining`, (RATE_LIMIT - (currentRateLimit?.count ?? 0)).toString())
+  response.headers.set(`${HEADER_PREFIX}-Reset`, Math.ceil((currentRateLimit?.resetTime ?? 0) / 1000).toString())
+
+  return response
 }
 
 export function middleware(request: NextRequest) {
-  const ip = request.ip || "unknown"
+  const pathname = request.nextUrl.pathname
 
-  if (siteConfig.maintenance.enabled) {
-    if (request.nextUrl.pathname.startsWith("/api/")) {
-      return new NextResponse(
-        JSON.stringify(
-          {
-            status: siteConfig.maintenance.apiResponse.status,
-            creator: siteConfig.api.creator,
-            message: siteConfig.maintenance.apiResponse.message,
-          },
-          null,
-          2,
-        ),
-        {
-          status: 503,
-          headers: {
-            "Content-Type": "application/json; charset=utf-8",
-          },
-        },
-      )
-    }
-
-    if (request.nextUrl.pathname !== "/maintenance") {
-      const url = request.nextUrl.clone()
-      url.pathname = "/maintenance"
-      return NextResponse.rewrite(url)
-    }
+  // Maintenance mode check
+  if (siteConfig.maintenance.enabled && pathname !== "/maintenance" && !pathname.startsWith("/api/")) {
+    const url = request.nextUrl.clone()
+    url.pathname = "/maintenance"
+    return NextResponse.rewrite(url)
   }
 
-  if (request.nextUrl.pathname.startsWith("/api/")) {
-    if (!request.nextUrl.pathname.startsWith("/api/v1/") && !request.nextUrl.pathname.startsWith("/api/v2/")) {
-      return new NextResponse(
-        JSON.stringify(
-          {
-            status: false,
-            creator: siteConfig.api.creator,
-            error: "API version is required. Please use /api/v1/ or /api/v2/",
-          },
-          null,
-          2,
-        ),
-        {
-          status: 400,
-          headers: {
-            "Content-Type": "application/json; charset=utf-8",
-          },
-        },
-      )
-    }
-
-    const rateLimitResult = getRateLimitResponse(ip)
-
-    if (rateLimitResult instanceof NextResponse) {
-      return rateLimitResult
-    }
-
-    const response = NextResponse.next()
-
-    response.headers.set("Access-Control-Allow-Origin", "*")
-    response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-    Object.entries(rateLimitResult.headers).forEach(([key, value]) => {
-      response.headers.set(key, value)
-    })
-
-    return response
+  if (pathname.startsWith("/api/")) {
+    return handleApiRequest(request)
   }
 
   return NextResponse.next()

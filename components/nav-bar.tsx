@@ -7,9 +7,11 @@ import { GithubIcon, Menu, X } from "lucide-react"
 import { siteConfig } from "@/settings/config"
 import { Logo } from "@/components/logo"
 import { NotificationDropdown } from "@/components/notification-dropdown"
+import { useSession } from "next-auth/react"
 
 export function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { data: session, status } = useSession()
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -43,6 +45,20 @@ export function NavBar() {
             Documentation
           </Link>
           <NotificationDropdown />
+          {status === "authenticated" ? (
+            <Link href="/dashboard">
+              <Button>Dashboard</Button>
+            </Link>
+          ) : (
+            <>
+              <Link href="/login">
+                <Button variant="ghost">Login</Button>
+              </Link>
+              <Link href="/register">
+                <Button>Register</Button>
+              </Link>
+            </>
+          )}
           <Link href={siteConfig.links.github} target="_blank" rel="noopener noreferrer">
             <Button variant="outline" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 md:h-9 md:w-9 bg-transparent">
               <GithubIcon className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
@@ -85,6 +101,21 @@ export function NavBar() {
           >
             Documentation
           </Link>
+
+          {status === "authenticated" ? (
+            <Link href="/dashboard" className="block text-sm font-medium hover:text-primary transition-colors py-2 px-3 rounded-md hover:bg-muted touch-manipulation active:scale-95" onClick={closeMenu}>
+              Dashboard
+            </Link>
+          ) : (
+            <div className="flex items-center gap-2">
+                <Link href="/login" className="w-full">
+                    <Button variant="ghost" className="w-full">Login</Button>
+                </Link>
+                <Link href="/register" className="w-full">
+                    <Button className="w-full">Register</Button>
+                </Link>
+            </div>
+          )}
 
           <div className="flex items-center justify-between py-2 px-3">
             <span className="text-sm font-medium text-muted-foreground">Connect</span>

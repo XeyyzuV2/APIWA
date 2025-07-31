@@ -39,7 +39,7 @@ async function bluearchive() {
         Pragma: "no-cache",
         Expires: "0",
         "X-Requested-With": "XMLHttpRequest",
-        "User-Agent": `VGX-API-Bot/${siteConfig.version} (${timestamp})`,
+        "User-Agent": `xAPI's-API-Bot/${siteConfig.version} (${timestamp})`,
       },
       cache: "no-store",
     })
@@ -66,7 +66,7 @@ async function bluearchive() {
         "Cache-Control": "no-cache, no-store, must-revalidate, proxy-revalidate",
         Pragma: "no-cache",
         Expires: "0",
-        "User-Agent": `VGX-API-Bot/${siteConfig.version} (${timestamp})`,
+        "User-Agent": `xAPI's-API-Bot/${siteConfig.version} (${timestamp})`,
       },
       cache: "no-store",
     })

@@ -1,16 +1,16 @@
 export const siteConfig = {
-  name: "VGX REST API's",
-  description: "Powerful, reliable, and easy-to-use REST API services for developers",
-  version: "3.1.0",
+  name: "xAPI's",
+  description: "A scalable multi-service API platform with analytics and a professional developer experience.",
+  version: "1.0.0",
   status: "online",
-  copyright: "© 2025 VGX REST API's. All rights reserved.",
+  copyright: "© 2025 xAPI's. All rights reserved.",
 
   maintenance: {
-    enabled: true,
+    enabled: false,
     title: "Website Under Maintenance",
     message: "We're currently upgrading our systems to serve you better. Please check back in a few hours.",
     showHomeLink: false,
-    gifUrl: "https://raw.githubusercontent.com/vgxurl/xyz/refs/heads/main/public/maintenance.gif",
+    gifUrl: "https://raw.githubusercontent.com/jules-ai/xapis/main/public/maintenance.gif",
     apiResponse: {
       status: false,
       message: "Our API services are currently undergoing scheduled maintenance.",
@@ -19,15 +19,15 @@ export const siteConfig = {
 
   notFound: {
     title: "404 - Page Not Found",
-    message: "Oops! The page you're looking for doesn't exist. The anime girl is just as confused as you are.",
-    gifUrl: "https://raw.githubusercontent.com/vgxurl/xyz/refs/heads/main/public/404.gif",
+    message: "Oops! The page you're looking for doesn't exist. Let's get you back on track.",
+    gifUrl: "https://raw.githubusercontent.com/jules-ai/xapis/main/public/404.gif",
   },
 
   logo: {
-    src: "https://raw.githubusercontent.com/vgxurl/xyz/refs/heads/main/logo.jpg",
+    src: "https://raw.githubusercontent.com/jules-ai/xapis/main/public/logo.jpg",
     width: 40,
     height: 40,
-    alt: "VGX REST API's",
+    alt: "xAPI's",
     autoInvert: true,
   },
 
@@ -42,7 +42,7 @@ export const siteConfig = {
 
   api: {
     baseUrl: "example.com",
-    creator: "VGX Team",
+    creator: "xAPI's Team",
     versions: ["v1", "v2"],
     defaultVersion: "v2",
     rateLimit: {

@@ -1,52 +1,7 @@
 import { NextResponse } from "next/server"
-import { siteConfig, getApiStatus } from "@/settings/config"
+import { siteConfig } from "@/settings/config"
 
 export async function GET(request: Request) {
-  const apiStatus = getApiStatus("/ai/luminai")
-
-  if (apiStatus.status === "offline") {
-    return new NextResponse(
-      JSON.stringify(
-        {
-          status: false,
-          creator: siteConfig.api.creator,
-          error: "This API endpoint is currently offline and unavailable. Please try again later.",
-          endpoint: "/ai/luminai",
-          apiStatus: "offline",
-          version: "v1",
-        },
-        null,
-        2,
-      ),
-      {
-        status: 503,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-        },
-      },
-    )
-  }
-
-  if (siteConfig.maintenance.enabled) {
-    return new NextResponse(
-      JSON.stringify(
-        {
-          status: siteConfig.maintenance.apiResponse.status,
-          creator: siteConfig.api.creator,
-          message: siteConfig.maintenance.apiResponse.message,
-        },
-        null,
-        2,
-      ),
-      {
-        status: 503,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-        },
-      },
-    )
-  }
-
   const { searchParams } = new URL(request.url)
   const text = searchParams.get("text")
 

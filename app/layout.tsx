@@ -4,6 +4,7 @@ import "./globals.css"
 import type React from "react"
 import { siteConfig, getBackgroundStyles } from "@/settings/config"
 import { ThemeProvider } from "@/components/theme-provider"
+import { NextAuthSessionProvider } from "@/components/session-provider"
 
 const ensureAbsoluteUrl = (value?: string): string => {
   const raw = value ?? "localhost"
@@ -13,7 +14,7 @@ const ensureAbsoluteUrl = (value?: string): string => {
 const BASE_URL = ensureAbsoluteUrl(siteConfig.api.baseUrl)
 
 export const metadata = {
-  title: "VGX REST API's | API Documentation",
+  title: "xAPI's | API Documentation",
   description: "Explore our API endpoints for various services.",
   keywords: "free API, unlimited API, bot development, AI API, anime",
   robots: "index, follow",
@@ -22,12 +23,12 @@ export const metadata = {
     type: "website",
     locale: "en_US",
     url: BASE_URL,
-    title: "VGX REST API's | API Documentation",
+    title: "xAPI's | API Documentation",
     description: "Explore our API endpoints for various services.",
     siteName: siteConfig.name,
     images: [
       {
-        url: "https://raw.githubusercontent.com/vgxurl/xyz/refs/heads/main/logo.jpg",
+        url: "https://raw.githubusercontent.com/jules-ai/xapis/main/public/logo.jpg",
         width: 1200,
         height: 630,
         alt: siteConfig.name,
@@ -36,16 +37,16 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "VGX REST API's | API Documentation",
+    title: "xAPI's | API Documentation",
     description: "Explore our API endpoints for various services.",
-    images: ["https://raw.githubusercontent.com/vgxurl/xyz/refs/heads/main/logo.jpg"],
+    images: ["https://raw.githubusercontent.com/jules-ai/xapis/main/public/logo.jpg"],
   },
   icons: {
-    icon: [{ url: "https://raw.githubusercontent.com/vgxurl/xyz/refs/heads/main/logo.jpg", type: "image/jpeg" }],
-    shortcut: [{ url: "https://raw.githubusercontent.com/vgxurl/xyz/refs/heads/main/logo.jpg", type: "image/jpeg" }],
+    icon: [{ url: "https://raw.githubusercontent.com/jules-ai/xapis/main/public/logo.jpg", type: "image/jpeg" }],
+    shortcut: [{ url: "https://raw.githubusercontent.com/jules-ai/xapis/main/public/logo.jpg", type: "image/jpeg" }],
     apple: [
       {
-        url: "https://raw.githubusercontent.com/vgxurl/xyz/refs/heads/main/logo.jpg",
+        url: "https://raw.githubusercontent.com/jules-ai/xapis/main/public/logo.jpg",
         type: "image/jpeg",
         sizes: "any",
       },
@@ -76,10 +77,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         data-version={siteConfig.version}
         data-api-version={siteConfig.api.defaultVersion}
       >
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          {siteConfig.background.type === "image" && <div className="fixed inset-0 bg-black/60 -z-10" />}
-          <div className="relative z-0 min-h-screen">{children}</div>
-        </ThemeProvider>
+        <NextAuthSessionProvider>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+            {siteConfig.background.type === "image" && <div className="fixed inset-0 bg-black/60 -z-10" />}
+            <div className="relative z-0 min-h-screen">{children}</div>
+          </ThemeProvider>
+        </NextAuthSessionProvider>
       </body>
     </html>
   )

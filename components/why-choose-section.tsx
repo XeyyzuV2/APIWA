@@ -12,7 +12,7 @@ export function WhyChooseSection() {
       <div className="mx-auto max-w-7xl">
         <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4">
-            Why Choose <span className="text-purple-400">VGX REST API</span>?
+            Why Choose <span className="text-purple-400">xAPI's</span>?
           </h2>
           <p className="text-muted-foreground text-xs sm:text-sm md:text-base lg:text-lg max-w-3xl mx-auto px-2 sm:px-4">
             Built for developers who demand reliability, speed, and simplicity in their API integrations
@@ -54,7 +54,7 @@ export function WhyChooseSection() {
           <div className="inline-flex items-center space-x-2 bg-purple-500/10 rounded-full px-4 md:px-6 py-2 md:py-3 max-w-full">
             <Icons.Zap className="h-4 w-4 md:h-5 md:w-5 text-purple-400 flex-shrink-0" />
             <span className="text-xs sm:text-sm font-medium text-center break-words">
-              Join thousands of developers already using VGX REST API
+              Join thousands of developers already using xAPI's
             </span>
           </div>
         </div>

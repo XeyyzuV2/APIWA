@@ -3,9 +3,9 @@
 <img src="https://raw.githubusercontent.com/vgxurl/xyz/refs/heads/main/public/preview.png" alt="API Documentation Preview" style="width: 100%; max-width: 800px; height: auto;" />
 </div>
 
-Welcome to *VGX-UI*, an open-source REST API documentation website created by Raol! This project provides a clean, modern interface for documenting API endpoints with premium features and full customization capabilities.
+Welcome to *xAPI's*, an open-source REST API documentation website! This project provides a clean, modern interface for documenting API endpoints with premium features and full customization capabilities.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvgxurl%2FVGX-UI.git&framework=nextjs&project-name=vgx-ui&repository-name=VGX-UI)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fjules-ai%2Fxapis.git&framework=nextjs&project-name=xapis&repository-name=xapis)
 
 *✨ Core Features*
 - *Modern UI/UX* - Sleek dark-mode interface with customizable background themes
