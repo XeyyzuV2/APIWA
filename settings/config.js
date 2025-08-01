@@ -177,9 +177,12 @@ export const siteConfig = {
         {
           method: "GET",
           path: "/tools/downloader",
-          description: "Download a file from a given URL.",
-          mediaType: "application/octet-stream",
-          parameters: [{ name: "url", type: "string", required: true, description: "The HTTPS URL of the file to download." }],
+          description: "Download videos/images from social media.",
+          mediaType: "application/json",
+          parameters: [
+            { name: "url", type: "string", required: true, description: "The URL of the social media post." },
+            { name: "download", type: "boolean", required: false, description: "Set to 'true' to download the file directly." },
+          ],
           versions: ["v2"],
         },
       ],
