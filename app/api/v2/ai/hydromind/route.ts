@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import { siteConfig, getApiStatus } from "@/settings/config"
 
+export const dynamic = "force-dynamic";
+
 const API_TIMEOUT = 10000
 
 async function hydromind(content: string, model: string, responses?: number) {

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { siteConfig } from "@/settings/config"
 import { randomBytes } from "crypto"
 
+export const dynamic = "force-dynamic";
+
 // Function to generate a more secure random number
 function getSecureRandom(max: number): number {
   return randomBytes(4).readUInt32BE(0) % max;
