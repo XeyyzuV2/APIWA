@@ -171,6 +171,20 @@ export const siteConfig = {
 
   apiCategories: [
     {
+      name: "Tools",
+      color: "purple",
+      endpoints: [
+        {
+          method: "GET",
+          path: "/tools/downloader",
+          description: "Download a file from a given URL.",
+          mediaType: "application/octet-stream",
+          parameters: [{ name: "url", type: "string", required: true, description: "The HTTPS URL of the file to download." }],
+          versions: ["v2"],
+        },
+      ],
+    },
+    {
       name: "AI",
       color: "blue",
       endpoints: [
