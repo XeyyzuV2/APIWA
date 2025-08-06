@@ -4,6 +4,7 @@ import { siteConfig } from "@/settings/config";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
+import { GetFreeKeyModal } from "@/components/get-free-key-modal";
 
 export default function DocsPage() {
   return (
@@ -19,6 +20,36 @@ export default function DocsPage() {
           </p>
         </header>
 
+        <section id="tier-info" className="mb-12 grid gap-4 md:grid-cols-3">
+          <Card>
+            <CardHeader>
+              <CardTitle>Free Tier</CardTitle>
+              <CardDescription>Key starts with `free_`</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>500 req / 2h</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Pro Tier</CardTitle>
+              <CardDescription>Key starts with `pro_`</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>Up to 5k req/hour (custom)</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Enterprise Tier</CardTitle>
+              <CardDescription>Key starts with `ent_`</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>Custom everything</p>
+            </CardContent>
+          </Card>
+        </section>
+
         <section id="authentication" className="mb-12">
             <Card>
                 <CardHeader>
@@ -26,6 +57,7 @@ export default function DocsPage() {
                     <CardDescription>How to authenticate your API requests.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                    <GetFreeKeyModal />
                     <p>
                         To use the xAPI's services, you need to include an API key in your requests. You can get your API key from the developer dashboard.
                     </p>
