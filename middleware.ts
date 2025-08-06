@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { siteConfig } from "@/settings/config"
+import ApiKey from "@/models/apiKey"
+import mongoose from "mongoose"
 
 // Helper to create a JSON response from the middleware
 function jsonResponse(status: number, data: any) {
@@ -12,7 +14,7 @@ function jsonResponse(status: number, data: any) {
 
 async function handleApiRequest(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  const publicApiRoutes = ["/api/auth", "/api/register", "/api/internal/validate-key"];
+  const publicApiRoutes = ["/api/auth", "/api/register", "/api/internal/validate-key", "/api/free-key", "/api/admin/create-key"];
 
   if (publicApiRoutes.some(route => pathname.startsWith(route))) {
     return NextResponse.next();
@@ -39,10 +41,20 @@ async function handleApiRequest(request: NextRequest) {
 
   if (!validationResponse.ok) {
     const errorData = await validationResponse.json();
-    return jsonResponse(401, { error: errorData.error || "Unauthorized: Invalid API Key" });
+    return jsonResponse(validationResponse.status, { error: errorData.error || "Unauthorized: Invalid API Key" });
   }
 
-  return NextResponse.next();
+  const keyInfo = await validationResponse.json();
+
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('X-Key-Info', JSON.stringify(keyInfo))
+
+
+  return NextResponse.next({
+    request: {
+        headers: requestHeaders,
+      },
+  });
 }
 
 export function middleware(request: NextRequest) {
