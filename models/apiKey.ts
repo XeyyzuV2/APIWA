@@ -1,18 +1,25 @@
 import mongoose, { Schema, Document, models, model } from 'mongoose';
-import { v4 as uuidv4 } from 'uuid';
 
 export interface IApiKey extends Document {
-  _id: string;
-  key: string;
-  userId: string;
-  revokedAt?: Date;
+  value: string;
+  tier: "free" | "pro" | "enterprise";
+  owner: string;
+  limit: number;
+  usage: number;
+  resetAt: number;
+  duration: number;
+  createdAt: Date;
 }
 
 const ApiKeySchema: Schema = new Schema({
-  _id: { type: String, default: uuidv4 },
-  key: { type: String, required: true, unique: true },
-  userId: { type: String, ref: 'User', required: true },
-  revokedAt: { type: Date },
-}, { timestamps: true });
+  value: { type: String, required: true, unique: true },
+  tier: { type: String, enum: ["free", "pro", "enterprise"], required: true },
+  owner: { type: String },
+  limit: { type: Number, required: true },
+  usage: { type: Number, default: 0 },
+  resetAt: { type: Number, required: true },
+  duration: { type: Number, required: true },
+  createdAt: { type: Date, default: Date.now },
+});
 
 export default models.ApiKey || model<IApiKey>('ApiKey', ApiKeySchema);

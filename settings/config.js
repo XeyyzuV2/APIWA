@@ -176,36 +176,28 @@ export const siteConfig = {
       endpoints: [
         {
           method: "GET",
-          {
-            method: "GET",
-            path: "/tools/downloader/tiktok",
-            description: "Download a video from a TikTok URL.",
-            mediaType: "application/json",
-            parameters: [
-              { name: "url", type: "string", required: true, description: "The URL of the TikTok video." },
-            ],
-            versions: ["v2"],
-          },
-          {
-            method: "GET",
-            path: "/tools/downloader/instagram",
-            description: "Download a video/image from an Instagram URL. (Not yet implemented)",
-            mediaType: "application/json",
-            parameters: [
-              { name: "url", type: "string", required: true, description: "The URL of the Instagram post." },
-            ],
-            versions: ["v2"],
-          },
-          {
-            method: "GET",
-            path: "/tools/downloader/x",
-            description: "Download a video/image from an X (Twitter) URL. (Not yet implemented)",
-            mediaType: "application/json",
-            parameters: [
-              { name: "url", type: "string", required: true, description: "The URL of the X (Twitter) post." },
-            ],
-            versions: ["v2"],
-          },
+          path: "/tools/downloader/tiktok",
+          description: "Download a video from a TikTok URL.",
+          mediaType: "application/json",
+          parameters: [{ name: "url", type: "string", required: true, description: "The URL of the TikTok video." }],
+          versions: ["v2"],
+        },
+        {
+          method: "GET",
+          path: "/tools/downloader/instagram",
+          description: "Download a video from an Instagram URL.",
+          mediaType: "application/json",
+          parameters: [{ name: "url", type: "string", required: true, description: "The URL of the Instagram post." }],
+          versions: ["v2"],
+        },
+        {
+          method: "GET",
+          path: "/tools/downloader/x",
+          description: "Download a video from an X (Twitter) URL.",
+          mediaType: "application/json",
+          parameters: [{ name: "url", type: "string", required: true, description: "The URL of the X (Twitter) post." }],
+          versions: ["v2"],
+        },
       ],
     },
     {
